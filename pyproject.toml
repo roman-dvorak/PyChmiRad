@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chmirad"
+version = "0.1.0"
+description = "A tool for downloading and visualizing radar data from CHMI"
+authors = [
+    { name = "Roman Dvořák", email = "dvorakroman@ust.cz" }
+]
+readme = "README.md"
+requires-python = ">=3.6"
+keywords = ["radar", "visualization", "CHMI"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://your.project.homepage"
+
+[project.dependencies]
+requests = "^2.25.1"
+h5py = "^3.1.0"
+matplotlib = "^3.3.4"
+numpy = "^1.19.5"
+cartopy = "^0.18.0"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
