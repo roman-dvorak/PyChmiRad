@@ -21,12 +21,13 @@ classifiers = [
 [project.urls]
 "Homepage" = "https://your.project.homepage"
 
-[project.dependencies]
-requests = "^2.25.1"
-h5py = "^3.1.0"
-matplotlib = "^3.3.4"
-numpy = "^1.19.5"
-cartopy = "^0.18.0"
+# [project.dependencies]
+# requests = "^2.25.1"
+# h5py = "^3.1.0"
+# matplotlib = "^3.3.4"
+# numpy = "^1.19.5"
+# cartopy = "^0.18.0"
+# PyQt5 = "^5.15.4"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
