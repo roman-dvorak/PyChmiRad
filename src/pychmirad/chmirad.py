@@ -8,14 +8,21 @@ import cartopy.feature as cfeature
 import os
 
 class ChmiRad:
-    def __init__(self):
-        self.base_url = "http://opendata.chmi.cz/meteorology/weather/radar/composite/pseudocappi2km/hdf5/T_PANV23_C_OKPR_{}.hdf"
+    def __init__(self, dataset_type='pseudocappi2km', download_dir='tmp'):
+        self.dataset_type = dataset_type
+        self.base_url_template = "http://opendata.chmi.cz/meteorology/weather/radar/composite/{}/hdf5/T_PANV23_C_OKPR_{{}}.hdf"
+        self.base_url = self.base_url_template.format(dataset_type)
         self.data_dict = {}
         self.latitudes = None
         self.longitudes = None
-        self.tmp_dir = 'tmp'
-        if not os.path.exists(self.tmp_dir):
-            os.makedirs(self.tmp_dir)
+        self.download_dir = download_dir
+        if not os.path.exists(self.download_dir):
+            os.makedirs(self.download_dir)
+    
+    def set_dataset_type(self, dataset_type):
+        self.dataset_type = dataset_type
+        self.base_url = self.base_url_template.format(dataset_type)
+        print(f"Dataset type set to: {dataset_type}")
     
     @staticmethod
     def format_datetime(dt):
@@ -29,7 +36,7 @@ class ChmiRad:
     def download_data(self, data_datetime):
         formatted_datetime = self.format_datetime(data_datetime)
         url = self.base_url.format(formatted_datetime)
-        filename = os.path.join(self.tmp_dir, f'pseudoCAPPI_2km_{formatted_datetime}.hdf5')
+        filename = os.path.join(self.download_dir, f'{self.dataset_type}_{formatted_datetime}.hdf5')
         
         if not os.path.exists(filename):
             print(f"Downloading data from: {url}")
@@ -59,7 +66,7 @@ class ChmiRad:
     def load_data_from_file(self, data_datetime, filename):
         try:
             with h5py.File(filename, 'r') as hdf:
-                data = hdf['dataset1/data1/data'][:]  # Example path, adjust as necessary
+                data = hdf['dataset1/data1/data'][:]  # Adjust path as needed
                 
                 if self.latitudes is None or self.longitudes is None:
                     where_attrs = hdf['where'].attrs
@@ -103,7 +110,7 @@ class ChmiRad:
         ax.scatter(prague_lon, prague_lat, color='red', marker='o', label='Prague', transform=ccrs.PlateCarree())
 
         plt.colorbar(im, ax=ax, label='Reflectivity (dBZ)')
-        plt.title(f'PseudoCAPPI 2km Reflectivity ({data_datetime})')
+        plt.title(f'{self.dataset_type} Reflectivity ({data_datetime})')
         plt.xlabel('Longitude')
         plt.ylabel('Latitude')
         plt.legend()
@@ -111,12 +118,17 @@ class ChmiRad:
 
 # Example usage:
 if __name__ == "__main__":
-    visualizer = ChmiRad()
+    dataset_type = "maxz"  # Change to desired dataset type
+    download_dir = "data"  # Change to desired directory
     
-    # Download and plot data for the last period (e.g., last 60 minutes) ending at the current time
+    visualizer = ChmiRad(dataset_type=dataset_type, download_dir=download_dir)
+    
     latest_datetime = datetime.utcnow().replace(minute=0, second=0, microsecond=0)
     start_datetime = latest_datetime - timedelta(minutes=60)
     visualizer.download_data_range(start_datetime, latest_datetime)
     
-    # Plot data for a specific datetime (automatically downloads if not already downloaded)
+    # Change dataset type dynamically
+    visualizer.set_dataset_type("merge1h")
+    visualizer.download_data(latest_datetime)
+    
     visualizer.plot_data(latest_datetime)
